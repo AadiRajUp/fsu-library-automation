@@ -44,6 +44,16 @@ class Item:
     def __post_init__(self):
         self.available = self.count
 
+def save_data_base(data = list[Item]) -> None:
+    '''
+        Saves some updated data chunk into the databse (currently through pickle file).
+    '''
+    try:
+        with open(DATA_FILE, 'wb') as file:
+            pickle.dump(data, file)
+    except Exception as e :
+        print(f'[COULDN"T SAVE FILE IN THE DATABASE BECAUSE OF {e}]')
+
 def load_data_base() -> list[Item]:
     ''' 
         Loads the data (currently through a pickle file) and returns
@@ -68,11 +78,9 @@ def fill_test_data() -> None:
           Item(5,"Helicopter","Useful for flying", "stuff/stuff", 1),
      ]
 
-    try:
-        with open(DATA_FILE ,'wb') as file:
-            pickle.dump(_test_data, file)
-        print("Test data wrote succesfully ")
-    except FileNotFoundError:
-      print("Couldn't write data into file ")
+    
+    with open(DATA_FILE ,'wb') as file:
+        pickle.dump(_test_data, file)
+    print("Test data wrote succesfully ")
                
 

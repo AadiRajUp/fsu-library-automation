@@ -6,18 +6,24 @@ from flask import Flask, render_template, request, redirect, flash
 import models
 
 app = Flask(__name__)
+app.secret_key = "blahblah22"
 
 # --------------------
 # Helper Functions
 # --------------------
 
-def item_by_id(id:int) -> models.Item:
+def item_by_id(id:int) -> models.Item | None:
     ''' Returns the item having the attribute ID = `id` '''
     # TODO: change while making actual database
+    try:
+        id = int(id)
+    except ValueError:
+        return None
+    
     for item in items:
         if item.id == id:
             return item
-        
+    return None
 # ------------------------
 # Routes
 # ------------------------
@@ -32,7 +38,7 @@ def validate():
     # ----------------------------------------------------------
     # get request -> renders the actual validation page
     # post request -> data validation (like otp and stuff) for validation,
-    # later i will implement other valiations like (does item exists and some stuff)
+    # later i will implement other valiations like (does item exists or is available and some stuff)
 
     # right now i am sending a successfully validated page thing
 
@@ -54,11 +60,25 @@ def validate():
 
     session_item = item_by_id(item_id)
 
-    # register a booking
-    _booking = models.Booking(email,models.datetime.now())
-    session_item.booking_ref = _booking
+    if not session_item:
+        flash("Some Error Occured. Maybe the item is already taken",'error')
 
-    flash(f"Sucessfully done, your item is in a hold state, please physically go and take it in {session_item.hold_time} days or will be redacted from holdings, also do note you must return the requested item after {session_item.occupy_time} days. Not doing will result this action to be mailed directly to the FSU. god knows what happens next.")
+    else:
+        # register a booking
+        _booking = models.Booking(email,models.datetime.now())
+        session_item.booking_ref = _booking
+
+        # decrement the availables
+        session_item.available -= 1
+
+        # commit those updated changes
+        models.save_data_base(items)
+
+        flash(f"""Sucessfully done, your item is in a hold state, 
+            please physically go and take it in {session_item.hold_time} days or will be redacted from holdings,
+                also do note you must return the requested item after {session_item.occupy_time} days.
+            Not doing will result this action to be mailed directly to the FSU. god knows what happens next.""",category='info')
+    
     return redirect("/")
 
 # ---------------------------- 
