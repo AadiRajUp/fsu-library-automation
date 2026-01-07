@@ -15,6 +15,8 @@
 			<th>Description</th>
 			<th>Image</th>
 			<th>Count</th>
+			<th>Available</th>
+			<th>Info</th>
 			<th>Book</th>
 		</tr>
 
@@ -25,9 +27,12 @@
 				<th>{{item.description}}</th>
 				<th>{{item.image_path}}</th>
 				<th>{{item.count}}</th>
-				<th><Button>Book?</Button></th>
+				<th>{{item.available}}</th>
+				<th><Button>Info?</Button></th>
+				<th><Button onclick="click_book({{item.id}})">Book?</Button></th>
 			</tr>
 		{% endfor %}
 	</table>
 
+<script src="{{url_for('static',filename='javascript/index.js')}}"></script>
 </html>

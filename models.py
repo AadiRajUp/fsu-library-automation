@@ -20,8 +20,14 @@ class Item:
     id:int
     name:str
     description:str
-    image_path:str|None
-    count:int
+    image_path:str|None 
+    count:int # TODO: redundant???
+    available: int = 0
+
+    info: str = "" # for tracking, maybe make a seperate table for the whole histroy? TODO
+
+    def __post_init__(self):
+        self.available = self.count
 
 def load_data_base() -> list[Item]:
     ''' 
