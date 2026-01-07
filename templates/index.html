@@ -4,9 +4,30 @@
 		Bare Minimum for test purposes
 
 		<h2> Select a thing you want from the list below. information about it is provided </h2> 
-		
+		<h3> TODO: Implement a search feature</h3>
 	</body>
 
+	<!-- main section for items -->
+	<table>
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Image</th>
+			<th>Count</th>
+			<th>Book</th>
+		</tr>
 
+		{% for item in items %}
+			<tr>
+				<th>{{item.id}}</th>
+				<th>{{item.name}}</th>
+				<th>{{item.description}}</th>
+				<th>{{item.image_path}}</th>
+				<th>{{item.count}}</th>
+				<th><Button>Book?</Button></th>
+			</tr>
+		{% endfor %}
+	</table>
 
 </html>

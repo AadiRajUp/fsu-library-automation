@@ -32,6 +32,26 @@ def load_data_base() -> list[Item]:
         with open(DATA_FILE, 'rb') as file:
             return  pickle.load(file)
     except FileNotFoundError:
+            print("[STORED DATA NOT FOUND, RETURNING EMPTY]")
             return []
 
+def fill_test_data() -> None:
+    '''
+        Fills random data for testing purposes
+    '''
+    _test_data = [
+          Item(1,"Football","Some ball", "stuff/stuff", 2),
+          Item(2,"Frankenstien","Crazy book", "stuff/stuff", 1),
+          Item(3,"Cricket Bat","For cricket", "stuff/stuff", 1),
+          Item(4,"Mouse","Not a computer one, a  real one", "stuff/stuff", 3),
+          Item(5,"Helicopter","Useful for flying", "stuff/stuff", 1),
+     ]
+
+    try:
+        with open(DATA_FILE ,'wb') as file:
+            pickle.dump(_test_data, file)
+        print("Test data wrote succesfully ")
+    except FileNotFoundError:
+      print("Couldn't write data into file ")
+               
 
