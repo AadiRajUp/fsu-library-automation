@@ -2,7 +2,7 @@
 #   app.py -> Contains server code
 #----------------------------------------
 
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, request, redirect, flash, session, jsonify
 from flask_cors import CORS
 import models
 
@@ -57,6 +57,37 @@ def admin():
             flash("Wrong username or password")
             return redirect('/campusend')
 
+@app.route('/own-item',methods=["POST"])
+def own_item():
+    ''' Change the state of the item from hold state to own state'''
+    msg = {"success":False,'remarks':'none'}
+   
+
+    if not session.get('logged_in'):
+        msg['remarks'] = "You are not authenticated"
+        return msg
+    
+    if request.method != "POST":
+        msg["remarks"] = "Wrong way to call this endpoint"
+        return msg
+    
+    id = request.get_json().get("id")
+    item = item_by_id(id)
+
+    if not item:
+        msg['remarks'] = "Wrong item referenced"
+        return msg
+    
+    # change the hold state
+    item.booking_ref.on_hold_state = False
+    item.booking_ref.on_occupied_state = True
+    item.booking_ref.booked_time = models.datetime.now()
+
+    msg["success"] = True
+    
+    return jsonify(msg)
+
+
 @app.route("/arena")
 def admin_dashboard():
     if not session.get('logged_in'):
@@ -74,10 +105,12 @@ def admin_dashboard():
         _temp.append(its.name)
         # photo
         _temp.append(its.image_path)
-        # roll number (generate through mail)
-        _temp.append(its.booking_ref.user_email)
+        # roll number (generate through mail, first 9 character)
+        _temp.append(its.booking_ref.user_email[:9].upper())
         # book time
         _temp.append(its.booking_ref.booked_time)
+        # id
+        _temp.append(its.id)
 
         items_modified.append(_temp)
 
