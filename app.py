@@ -32,8 +32,57 @@ def item_by_id(id:int) -> models.Item | None:
 def home():
     return render_template('index.html',items = items)
 
+@app.route("/info", methods=['GET'])
+def info():
+    
+    def date_as_string(datetime_obj : models.datetime):
+        return datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
+    
+    ''' Returns the information about a certain item (How much time for hold-clearing and stuffs)'''
+    item_id = request.args.get("id")
+
+    if item_id:
+        _ctx_item = item_by_id(item_id)
+        _booking_ref = _ctx_item.booking_ref
+
+        if not _booking_ref:
+            return {
+                'sucess': True,
+                'name': _ctx_item.name,
+                "booked_on":"Not Booked",
+                "hold_state": 0,
+                "hold_days":0,
+                "occupied_state":0,
+                "occupied_days": 0,
+            }
+        
+        _booked_on = _booking_ref.booked_time
+        is_on_hold =_booking_ref.on_hold_state
+        is_on_occupy = _booking_ref.on_occupied_state
+        hold_days = _ctx_item.hold_time -( (models.datetime.now() - _booked_on).days)
+        
+        if is_on_occupy:
+            occupy_days = _ctx_item.occupy_time - ((models.datetime.now() - _booking_ref.occupy_time)).days
+        else:
+            occupy_days = 0
+
+        return {
+            'success': True,
+            "name" : _ctx_item.name,
+            "booked_on": date_as_string(_booked_on),
+            "hold_state": is_on_hold,
+            "hold_days":hold_days if is_on_hold else 0,
+            "occupied_state": is_on_occupy,
+            "occupied_days": occupy_days,
+        }       
+    else:
+        return {'success':False}
+
+
 @app.route("/validation",methods=["GET","POST"])
 def validate():
+    global items
+
     ''' Validates the items and email'''
     # ----------------------------------------------------------
     # get request -> renders the actual validation page
@@ -58,10 +107,20 @@ def validate():
     item_id = request.args.get("id")
     email = request.args.get("email")
 
+    if(not (item_id and email)):
+        flash("Error", "Wrong Request")
+        return redirect("/")
+
     session_item = item_by_id(item_id)
 
     if not session_item:
         flash("Some Error Occured. Maybe the item is already taken",'error')
+        return redirect("/")
+
+
+        # check if availabel
+    if session_item.available <= 0:
+        flash("Error You cannot book this item, since there is none available", 'error')
 
     else:
         # register a booking
@@ -75,15 +134,15 @@ def validate():
         models.save_data_base(items)
 
         flash(f"""Sucessfully done, your item is in a hold state, 
-            please physically go and take it in {session_item.hold_time} days or will be redacted from holdings,
+                please physically go and take it in {session_item.hold_time} days or will be redacted from holdings,
                 also do note you must return the requested item after {session_item.occupy_time} days.
-            Not doing will result this action to be mailed directly to the FSU. god knows what happens next.""",category='info')
+                Not doing will result this action to be mailed directly to the FSU. god knows what happens next.""",category='info')
     
     return redirect("/")
 
 # ---------------------------- 
 
 if __name__ == "__main__":
-    # models.fill_test_data()
+    models.fill_test_data()
     items = models.load_data_base()
     app.run(debug=True)

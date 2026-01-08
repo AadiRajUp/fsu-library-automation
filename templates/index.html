@@ -39,8 +39,8 @@
 				<th>{{item.image_path}}</th>
 				<th>{{item.count}}</th>
 				<th>{{item.available}}</th>
-				<th><Button>Info?</Button></th>
-				<th><Button onclick="click_book({{item.id}})">Book?</Button></th>
+				<th><Button onclick="click_info({{item.id}})">Info?</Button></th>
+				<th><Button onclick="click_book({{item.id}})" {% if item.available < 1%}disabled{%endif%}>Book?</Button></th>
 			</tr>
 		{% endfor %}
 	</table>

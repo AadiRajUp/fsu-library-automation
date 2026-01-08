@@ -20,7 +20,9 @@ class Booking:
     '''
     user_email:str
     booked_time:datetime
-    holding_state:bool = True
+    occupy_time:datetime | None
+    on_hold_state:bool = True
+    on_occupied_state:bool = False
 
 
 @dataclass
