@@ -20,7 +20,7 @@ class Booking:
     '''
     user_email:str
     booked_time:datetime
-    occupy_time:datetime | None
+    occupy_time:datetime | None= None
     on_hold_state:bool = True
     on_occupied_state:bool = False
 
@@ -34,17 +34,13 @@ class Item:
     name:str
     description:str
     image_path:str|None 
-    count:int # TODO: redundant???
-    available: int = 0
+    available: bool = True
 
     hold_time:int = 3 # max amount of days before your hold freezes and someone else can register
     occupy_time:int = 15 # max amount of days before you HAVE to return it
 
+    booking_ref: Booking = None # maybe have a history
 
-    booking_ref: Booking | None = None # maybe have a history
-
-    def __post_init__(self):
-        self.available = self.count
 
 def save_data_base(data = list[Item]) -> None:
     '''
@@ -73,11 +69,11 @@ def fill_test_data() -> None:
         Fills random data for testing purposes
     '''
     _test_data = [
-          Item(1,"Football","Some ball", "stuff/stuff", 2),
-          Item(2,"Frankenstien","Crazy book", "stuff/stuff", 1),
-          Item(3,"Cricket Bat","For cricket", "stuff/stuff", 1),
-          Item(4,"Mouse","Not a computer one, a  real one", "stuff/stuff", 3),
-          Item(5,"Helicopter","Useful for flying", "stuff/stuff", 1),
+          Item(1,"Football","Some ball", "stuff/stuff"),
+          Item(2,"Frankenstien","Crazy book", "stuff/stuff"),
+          Item(3,"Cricket Bat","For cricket", "stuff/stuff"),
+          Item(4,"Mouse","Not a computer one, a  real one", "stuff/stuff"),
+          Item(5,"Helicopter","Useful for flying", "stuff/stuff"),
      ]
 
     

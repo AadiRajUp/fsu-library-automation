@@ -49,9 +49,9 @@ def info():
 
         if not _booking_ref:
             return {
-                'sucess': True,
+                'success': True,
                 'name': _ctx_item.name,
-                "booked_on":"Not Booked",
+                "booked_on":"Not Booked, Available",
                 "hold_state": 0,
                 "hold_days":0,
                 "occupied_state":0,
@@ -121,7 +121,7 @@ def validate():
 
 
         # check if availabel
-    if session_item.available <= 0:
+    if not session_item.available :
         flash("Error You cannot book this item, since there is none available", 'error')
 
     else:
@@ -130,7 +130,7 @@ def validate():
         session_item.booking_ref = _booking
 
         # decrement the availables
-        session_item.available -= 1
+        session_item.available = False
 
         # commit those updated changes
         models.save_data_base(items)

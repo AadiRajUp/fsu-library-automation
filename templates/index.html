@@ -25,7 +25,6 @@
 			<th>Name</th>
 			<th>Description</th>
 			<th>Image</th>
-			<th>Count</th>
 			<th>Available</th>
 			<th>Info</th>
 			<th>Book</th>
@@ -37,7 +36,6 @@
 				<th>{{item.name}}</th>
 				<th>{{item.description}}</th>
 				<th>{{item.image_path}}</th>
-				<th>{{item.count}}</th>
 				<th>{{item.available}}</th>
 				<th><Button onclick="click_info({{item.id}})">Info?</Button></th>
 				<th><Button onclick="click_book({{item.id}})" {% if item.available < 1%}disabled{%endif%}>Book?</Button></th>

@@ -34,7 +34,7 @@ function click_info(id) {
         })
         .then(data => {
             alert(
-                `SUCESS: ${data.sucess}\n` +
+                `SUCESS: ${data.success}\n` +
                 `NAME: ${data.name}\n` +
                 `BOOKED ON : ${data.booked_on}\n`+
                 `HOLD : ${data.hold_state}\n` +
