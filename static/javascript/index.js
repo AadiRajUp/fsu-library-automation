@@ -23,7 +23,9 @@ function click_book(id){
 function click_info(id) {
     const url = `http://localhost:5000/info?id=${encodeURIComponent(id)}`;
 
-    fetch(url)
+    fetch(url,{
+        method:"GET"
+    })
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

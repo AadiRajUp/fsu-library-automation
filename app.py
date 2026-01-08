@@ -3,9 +3,11 @@
 #----------------------------------------
 
 from flask import Flask, render_template, request, redirect, flash
+from flask_cors import CORS
 import models
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = "blahblah22"
 
 # --------------------
