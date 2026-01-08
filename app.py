@@ -63,7 +63,25 @@ def admin_dashboard():
         flash("You are not authenticated")
         return redirect('/campusend')
     
-    return 'wow'
+    relevant_items = [item for item in items if not item.available and item.booking_ref.on_hold_state]
+    items_modified = []
+
+    # fill items_modified with all the required information
+    for its in relevant_items:
+        _temp = []
+
+        # name 
+        _temp.append(its.name)
+        # photo
+        _temp.append(its.image_path)
+        # roll number (generate through mail)
+        _temp.append(its.booking_ref.user_email)
+        # book time
+        _temp.append(its.booking_ref.booked_time)
+
+        items_modified.append(_temp)
+
+    return render_template('dashboard.html',items= items_modified)
     
 
 
@@ -178,6 +196,6 @@ def validate():
 # ---------------------------- 
 
 if __name__ == "__main__":
-    models.fill_test_data()
+    # models.fill_test_data()
     items = models.load_data_base()
     app.run(debug=True)

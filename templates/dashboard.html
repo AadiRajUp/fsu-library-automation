@@ -1,1 +1,33 @@
 <!-- Dashboard as seen by the librarian -->
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+ </head>
+ <body>
+    <center><h2>बुक गरिएका तर नलगिसकेका सामानहरुको वृस्तित विवरण</h2></center>
+    <br><br>
+
+    <table>
+        <tr>
+            <th>नाम</th>
+            <th>फोटो</th>
+            <th>लग्नेको रोल नम्बर</th>
+            <th>बुक गरिएको मिति</th>
+        </tr>
+
+        {% for item in items %}
+            <tr>
+                <th>{{item[0]}}</th>
+                <th>{{item[1]}}</th>
+                <th>{{item[2]}}</th>
+                <th>{{item[3]}}</th>
+            </tr>
+
+        {% endfor%}
+    </table>
+    
+ </body>
+ </html>
