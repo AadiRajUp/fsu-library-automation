@@ -19,6 +19,14 @@
 		{% endif %}
 	{% endwith %}
 
+	<!-- section for searching items with their email -->
+	<form action="/user-bookings" method="post">
+		<label for="email">Enter email</label>
+		<input type="email" name="email">
+
+		<button>Search for this mail</button>
+	</form>
+
 	<!-- main section for items -->
 	<table>
 		<tr>

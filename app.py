@@ -34,6 +34,52 @@ def item_by_id(id:int) -> models.Item | None:
 def home():
     return render_template('index.html',items = items)
 
+@app.route('/user-bookings',methods=["POST"])
+def user_history():
+    ''' When user wants to see all of the stuff they have booked for an email. '''
+    if not request.method == "POST":
+        flash("Wrong Method")
+        return redirect("/")
+    
+    email = request.form.get("email")
+    
+    if not email:
+        flash("Email is required")
+        return redirect("/")
+    
+    all = []
+    for it in items:
+        temp = []
+        if it.booking_ref and it.booking_ref.user_email == email:
+            
+            # will in the following order
+            # ID, NAME, BOOK_DATE, HOLD_TIME_REMAINING, BOOK_TIME_REMAINING
+            temp.append(it.id)
+            temp.append(it.name)
+
+            # TODO: remove this verbosity
+
+            _booking_ref = it.booking_ref
+
+            temp.append(_booking_ref.booked_time)
+
+            _booked_on = _booking_ref.booked_time
+            is_on_hold =_booking_ref.on_hold_state
+            is_on_occupy = _booking_ref.on_occupied_state
+            hold_days = it.hold_time -( (models.datetime.now() - _booked_on).days)
+        
+            if is_on_occupy:
+                occupy_days = it.occupy_time - ((models.datetime.now() - _booking_ref.occupy_time)).days
+            else:
+                occupy_days = "NOT ON OCCUPY"
+
+            temp.append(hold_days if is_on_hold else "NOT ON HOLD")
+            temp.append(occupy_days)
+
+            all.append(temp)
+    
+    return render_template("user_bookings.html",items=all)
+
 
 @app.route("/campusend",methods=['GET',"POST"])
 def admin():
@@ -218,6 +264,7 @@ def validate():
 
         # commit those updated changes
         models.save_data_base(items)
+        items = models.load_data_base() # TODO: remove?
 
         flash(f"""Sucessfully done, your item is in a hold state, 
                 please physically go and take it in {session_item.hold_time} days or will be redacted from holdings,
