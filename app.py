@@ -127,7 +127,7 @@ def own_item():
     # change the hold state
     item.booking_ref.on_hold_state = False
     item.booking_ref.on_occupied_state = True
-    item.booking_ref.booked_time = models.datetime.now()
+    item.booking_ref.occupy_time = models.datetime.now()
 
     msg["success"] = True
     

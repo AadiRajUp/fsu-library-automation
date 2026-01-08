@@ -48,7 +48,11 @@
                 }
             )   
         }).then( r=> r.json())
-        .then( d=>console.log(d))
+        .then( d=>{
+            if (d.success == true){
+                window.location.href = "/arena";
+            }
+        })
         .catch( e => console.log(e));
     }
  </script>
