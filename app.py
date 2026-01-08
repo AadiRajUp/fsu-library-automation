@@ -2,7 +2,7 @@
 #   app.py -> Contains server code
 #----------------------------------------
 
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, session
 from flask_cors import CORS
 import models
 
@@ -33,6 +33,39 @@ def item_by_id(id:int) -> models.Item | None:
 @app.route("/")
 def home():
     return render_template('index.html',items = items)
+
+
+@app.route("/campusend",methods=['GET',"POST"])
+def admin():
+    ''' Interface visible for the FSU representative'''
+    if request.method == "GET":
+        return render_template("login.html")
+    
+    elif request.method == "POST":
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not (username and password):
+            flash("Please enter something")
+            return redirect('/campusend')
+
+        #TODO: work on more robust method of verification
+        if username == "ram" and password == 'hari':
+            session['logged_in'] = True
+            return redirect('/arena')
+        else:
+            flash("Wrong username or password")
+            return redirect('/campusend')
+
+@app.route("/arena")
+def admin_dashboard():
+    if not session.get('logged_in'):
+        flash("You are not authenticated")
+        return redirect('/campusend')
+    
+    return 'wow'
+    
+
 
 @app.route("/info", methods=['GET'])
 def info():
