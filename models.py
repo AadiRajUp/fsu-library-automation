@@ -19,8 +19,8 @@ class Booking:
         Stores bookings info
     '''
     user_email:str
-    booked_time:datetime
-    occupy_time:datetime | None= None
+    booked_date:datetime  # booked is the first time they hold it 
+    occupied_date:datetime | None= None # occupy happens when they physically come and take it 
     on_hold_state:bool = True
     on_occupied_state:bool = False
 

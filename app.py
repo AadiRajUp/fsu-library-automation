@@ -63,13 +63,13 @@ def user_history():
 
             temp.append(_booking_ref.booked_time)
 
-            _booked_on = _booking_ref.booked_time
+            _booked_on = _booking_ref.booked_date
             is_on_hold =_booking_ref.on_hold_state
             is_on_occupy = _booking_ref.on_occupied_state
             hold_days = it.hold_time -( (models.datetime.now() - _booked_on).days)
         
             if is_on_occupy:
-                occupy_days = it.occupy_time - ((models.datetime.now() - _booking_ref.occupy_time)).days
+                occupy_days = it.occupy_time - ((models.datetime.now() - _booking_ref.occupied_date)).days
             else:
                 occupy_days = "NOT ON OCCUPY"
 
@@ -127,7 +127,7 @@ def own_item():
     # change the hold state
     item.booking_ref.on_hold_state = False
     item.booking_ref.on_occupied_state = True
-    item.booking_ref.occupy_time = models.datetime.now()
+    item.booking_ref.occupied_date = models.datetime.now()
 
     msg["success"] = True
     
@@ -154,7 +154,7 @@ def admin_dashboard():
         # roll number (generate through mail, first 9 character)
         _temp.append(its.booking_ref.user_email[:9].upper())
         # book time
-        _temp.append(its.booking_ref.booked_time)
+        _temp.append(its.booking_ref.booked_date)
         # id
         _temp.append(its.id)
 
@@ -188,13 +188,13 @@ def info():
                 "occupied_days": 0,
             }
         
-        _booked_on = _booking_ref.booked_time
+        _booked_on = _booking_ref.booked_date
         is_on_hold =_booking_ref.on_hold_state
         is_on_occupy = _booking_ref.on_occupied_state
         hold_days = _ctx_item.hold_time -( (models.datetime.now() - _booked_on).days)
         
         if is_on_occupy:
-            occupy_days = _ctx_item.occupy_time - ((models.datetime.now() - _booking_ref.occupy_time)).days
+            occupy_days = _ctx_item.occupy_time - ((models.datetime.now() - _booking_ref.occupied_date)).days
         else:
             occupy_days = 0
 
