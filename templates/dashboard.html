@@ -57,6 +57,30 @@
 
     </table>
 
+    <br><br>
+    <h2>म्याद सकिदा पनि नफर्काएका हरु</h2>
+
+    <table>
+        <tr>
+            <th>नाम</th>
+            <th>फोटो</th>
+            <th>लानेको रोल नं</th>
+            <th>समय वाँकि</th>
+        </tr>
+
+            {% for item in expired %}
+            <tr>
+                <th>{{item[0]}}</th>
+                <th>{{item[1]}}</th>
+                <th>{{item[2]}}</th>
+                <th>{{item[3]}}</th>
+                <!-- ID is item[4] -->
+            </tr>
+
+        {% endfor%}
+
+    </table>
+
     
  </body>
 

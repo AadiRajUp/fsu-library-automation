@@ -218,6 +218,8 @@ def admin_dashboard():
     to_return = [item for item in items if not item.available and item.booking_ref.on_occupied_state]
 
     items_to_return = []
+    items_date_expired = []
+
     for its in to_return:
         _temp = []
 
@@ -228,15 +230,19 @@ def admin_dashboard():
         # roll number (generate through mail, first 9 character)
         _temp.append(its.booking_ref.user_email[:9].upper())
         # book time
-        _temp.append(its.occupy_time - (its.booking_ref.booked_date.day - today))
+        _time = its.occupy_time - (its.booking_ref.booked_date.day - today)
+        _temp.append(_time)
         # id
         _temp.append(its.id)
 
+        print(_time)
         items_to_return.append(_temp)
+        if _time < 1:
+            items_date_expired.append(_temp)
     
 
 
-    return render_template('dashboard.html',items= items_modified,returns = items_to_return)
+    return render_template('dashboard.html',items= items_modified,returns = items_to_return,expired = items_date_expired)
     
 
 
