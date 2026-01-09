@@ -61,7 +61,7 @@ def user_history():
 
             _booking_ref = it.booking_ref
 
-            temp.append(_booking_ref.booked_time)
+            temp.append(_booking_ref.booked_date)
 
             _booked_on = _booking_ref.booked_date
             is_on_hold =_booking_ref.on_hold_state
@@ -136,9 +136,34 @@ def own_item():
 
 @app.route("/arena")
 def admin_dashboard():
+    global items
+
     if not session.get('logged_in'):
         flash("You are not authenticated")
         return redirect('/campusend')
+    
+    # check for items that have passed their max hold date or max booked date
+    today = models.datetime.now().day
+    booked_day =  it.booking_ref.booked_date.day
+    occupied_day = it.booking_ref.occupied_date.day 
+    
+    for it in items:
+        if it.booking_ref.on_hold_state and (today - booked_day > it.hold_time):
+            # hold time has passed, time to realease it 
+            # TODO: something else behaviour for hold time?
+            it.booking_ref = None
+
+            models.save_data_base(items)
+        
+        if it.booking_ref.on_occupied_state and (today - occupied_day > it.occupy_time):
+            # occupy time has passed, time to release it
+            # TODO: something else behaviour in this case?
+            it.booking_ref = None
+            it.booking_ref.is_expired = True
+            # mail FSU?
+            models.save_data_base(items)
+            
+
     
     relevant_items = [item for item in items if not item.available and item.booking_ref.on_hold_state]
     items_modified = []
