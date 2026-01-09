@@ -144,27 +144,27 @@ def admin_dashboard():
     
     # check for items that have passed their max hold date or max booked date
     today = models.datetime.now().day
-    booked_day =  it.booking_ref.booked_date.day
-    occupied_day = it.booking_ref.occupied_date.day 
-    
+   
     for it in items:
-        if it.booking_ref.on_hold_state and (today - booked_day > it.hold_time):
+        if not it.booking_ref: continue
+
+        if it.booking_ref.on_hold_state and ((today - it.booking_ref.booked_date.day) > it.hold_time):
             # hold time has passed, time to realease it 
             # TODO: something else behaviour for hold time?
             it.booking_ref = None
+            it.available = True
 
             models.save_data_base(items)
         
-        if it.booking_ref.on_occupied_state and (today - occupied_day > it.occupy_time):
+        elif it.booking_ref.on_occupied_state and ((today - it.booking_ref.occupied_date.day )> it.occupy_time):
             # occupy time has passed, time to release it
             # TODO: something else behaviour in this case?
-            it.booking_ref = None
             it.booking_ref.is_expired = True
+
             # mail FSU?
             models.save_data_base(items)
             
 
-    
     relevant_items = [item for item in items if not item.available and item.booking_ref.on_hold_state]
     items_modified = []
 
@@ -293,7 +293,7 @@ def validate():
 
         flash(f"""Sucessfully done, your item is in a hold state, 
                 please physically go and take it in {session_item.hold_time} days or will be redacted from holdings,
-                also do note you must return the requested item after {session_item.occupy_time} days.
+                also do note you must return ti > it.occuphe requested item after {session_item.occupy_time} days.
                 Not doing will result this action to be mailed directly to the FSU. god knows what happens next.""",category='info')
     
     return redirect("/")
