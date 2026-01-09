@@ -31,6 +31,32 @@
 
         {% endfor%}
     </table>
+    <br><br>
+    <h2>बुक गरिएका र विद्यार्थी ले लयाउनु पर्ने सामानहरु</h2>
+
+    <table>
+        <tr>
+            <th>नाम</th>
+            <th>फोटो</th>
+            <th>लानेको रोल नं</th>
+            <th>समय वाँकि</th>
+            <th>सामान हस्तान्तरण गरियो ?</th>
+        </tr>
+
+            {% for item in returns %}
+            <tr>
+                <th>{{item[0]}}</th>
+                <th>{{item[1]}}</th>
+                <th>{{item[2]}}</th>
+                <th>{{item[3]}}</th>
+                <!-- ID is item[4] -->
+                <th><Button onclick="">विद्यार्थी सामान पुर्याउन आए</Button></th>
+            </tr>
+
+        {% endfor%}
+
+    </table>
+
     
  </body>
 

@@ -165,11 +165,12 @@ def admin_dashboard():
             models.save_data_base(items)
             
 
-    relevant_items = [item for item in items if not item.available and item.booking_ref.on_hold_state]
+    hold_items = [item for item in items if not item.available and item.booking_ref.on_hold_state]
+
     items_modified = []
 
-    # fill items_modified with all the required information
-    for its in relevant_items:
+    # fill items_modified with all the required information for holdings and to_return items
+    for its in hold_items:
         _temp = []
 
         # name 
@@ -184,8 +185,29 @@ def admin_dashboard():
         _temp.append(its.id)
 
         items_modified.append(_temp)
+    
+    to_return = [item for item in items if not item.available and item.booking_ref.on_occupied_state]
 
-    return render_template('dashboard.html',items= items_modified)
+    items_to_return = []
+    for its in to_return:
+        _temp = []
+
+        # name 
+        _temp.append(its.name)
+        # photo
+        _temp.append(its.image_path)
+        # roll number (generate through mail, first 9 character)
+        _temp.append(its.booking_ref.user_email[:9].upper())
+        # book time
+        _temp.append(its.occupy_time - (its.booking_ref.booked_date.day - today))
+        # id
+        _temp.append(its.id)
+
+        items_to_return.append(_temp)
+    
+
+
+    return render_template('dashboard.html',items= items_modified,returns = items_to_return)
     
 
 
