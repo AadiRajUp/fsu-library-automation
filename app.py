@@ -102,6 +102,34 @@ def admin():
         else:
             flash("Wrong username or password")
             return redirect('/campusend')
+        
+@app.route('/return', methods=["POST"])
+def return_item():
+    ''' Changes the state of item to be available again and returned '''
+    msg = {"success":False,'remarks':'none'}
+
+    if not session.get('logged_in'):
+        msg['remarks'] = "You are not authenticated"
+        return msg
+    
+    if request.method != "POST":
+        msg["remarks"] = "Wrong way to call this endpoint"
+        return msg
+    
+    id = request.get_json().get("id")
+    item = item_by_id(id)
+
+    if not item:
+        msg['remarks'] = "Wrong item referenced"
+        return msg
+    
+    item.booking_ref = None
+    item.available = True
+    models.save_data_base(items)
+    msg["success"] = True
+    
+    return jsonify(msg)
+
 
 @app.route('/own-item',methods=["POST"])
 def own_item():
@@ -128,6 +156,7 @@ def own_item():
     item.booking_ref.on_hold_state = False
     item.booking_ref.on_occupied_state = True
     item.booking_ref.occupied_date = models.datetime.now()
+    models.save_data_base(items)
 
     msg["success"] = True
     
@@ -323,6 +352,6 @@ def validate():
 # ---------------------------- 
 
 if __name__ == "__main__":
-    # models.fill_test_data()
+    models.fill_test_data()
     items = models.load_data_base()
     app.run(debug=True)

@@ -50,7 +50,7 @@
                 <th>{{item[2]}}</th>
                 <th>{{item[3]}}</th>
                 <!-- ID is item[4] -->
-                <th><Button onclick="">विद्यार्थी सामान पुर्याउन आए</Button></th>
+                <th><Button onclick="return_owernship({{item[4]}})">विद्यार्थी सामान पुर्याउन आए</Button></th>
             </tr>
 
         {% endfor%}
@@ -78,6 +78,28 @@
             if (d.success == true){
                 window.location.href = "/arena";
             }
+        })
+        .catch( e => console.log(e));
+    }
+
+    function return_owernship(id){
+        // makes a request, to change the item from hold state to own state
+        fetch("/return",{
+            method:'POST',
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(
+                {
+                    id: id
+                }
+            )   
+        }).then( r=> r.json())
+        .then( d=>{
+            if (d.success == true){
+                window.location.href = "/arena";
+            }
+            console.log(d);
         })
         .catch( e => console.log(e));
     }
