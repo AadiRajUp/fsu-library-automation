@@ -15,7 +15,6 @@ DATA_BASE_URL = "sqlite:://app.db"
 # -------------------------------------------
 
 # ---------------- Database Models ----------
-
 class Item(Base):
     __tablename__ = "items"
 
@@ -58,46 +57,32 @@ def get_db():
     finally:
         db.close()
 
+def item_by_id(db, item_id: int):
+    return db.query(Item).filter(Item.id == item_id).first()
 
-def save_data_base(data: List[Item]) -> None:
-    """
-    Saves updated data into the database (pickle file for now).
-    """
-    try:
-        with open(DATA_FILE, "wb") as file:
-            pickle.dump(data, file)
-    except Exception as e:
-        print(f'[ERROR] Could not save database: {e}')
+def get_all_items(db):
+    return db.query(Item).all()
 
+def get_available_items(db):
+    return db.query(Item).filter(Item.available == True).all()
 
-def load_data_base() -> List[Item]:
-    """
-    Loads data from the pickle database.
-    """
-    try:
-        with open(DATA_FILE, "rb") as file:
-            return pickle.load(file)
-    except FileNotFoundError:
-        print("[INFO] Stored data not found, returning empty list")
-        return []
-    except Exception as e:
-        print(f"[ERROR] Failed to load database: {e}")
-        return []
+def get_expired_bookings(db):
+    return db.query(Booking).filter(Booking.is_expired == True).all()
+
+def get_items_on_hold(db):
+    return db.query(Item).join(Booking).filter(
+        Booking.on_hold_state == True,
+        Booking.is_expired == False
+    ).all()
+
+def get_user_bookings(db, email: str):
+    return db.query(Booking).filter(
+        Booking.user_email == email
+    ).all()
 
 
-def fill_test_data() -> None:
-    """
-    Fills random test data (overwrites existing database).
-    """
-    test_data = [
-        Item(1, "Football", "Some ball", "stuff/stuff"),
-        Item(2, "Frankenstein", "Crazy book", "stuff/stuff"),
-        Item(3, "Cricket Bat", "For cricket", "stuff/stuff"),
-        Item(4, "Mouse", "Not a computer one, a real one", "stuff/stuff"),
-        Item(5, "Helicopter", "Useful for flying", "stuff/stuff"),
-    ]
-
-    with open(DATA_FILE, "wb") as file:
-        pickle.dump(test_data, file)
-
-    print("[INFO] Test data written successfully")
+def get_items_on_occupy(db):
+    return db.query(Item).join(Booking).filter(
+        Booking.on_occupied_state == True,
+        Booking.is_expired == False
+    ).all()
