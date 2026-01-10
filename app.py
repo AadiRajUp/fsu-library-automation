@@ -2,9 +2,12 @@
 #   app.py -> Contains server code
 #----------------------------------------
 
-from flask import Flask, render_template, request, redirect, flash, session, jsonify
+from flask import (
+    Flask, render_template, request, redirect, flash, session, jsonify
+    )
+
 from flask_cors import CORS
-import models
+from models import *
 
 app = Flask(__name__)
 CORS(app)
@@ -14,18 +17,22 @@ app.secret_key = "blahblah22"
 # Helper Functions
 # --------------------
 
-def item_by_id(id:int) -> models.Item | None:
-    ''' Returns the item having the attribute ID = `id` '''
-    # TODO: change while making actual database
-    try:
-        id = int(id)
-    except ValueError:
-        return None
+def item_by_id(db, item_id: int):
+    return db.query(Item).filter(Item.id == item_id).first()
+
+
+# def item_by_id(id:int) -> models.Item | None:
+#     ''' Returns the item having the attribute ID = `id` '''
+#     # TODO: change while making actual database
+#     try:
+#         id = int(id)
+#     except ValueError:
+#         return None
     
-    for item in items:
-        if item.id == id:
-            return item
-    return None
+#     for item in items:
+#         if item.id == id:
+#             return item
+#     return None
 # ------------------------
 # Routes
 # ------------------------
@@ -66,10 +73,10 @@ def user_history():
             _booked_on = _booking_ref.booked_date
             is_on_hold =_booking_ref.on_hold_state
             is_on_occupy = _booking_ref.on_occupied_state
-            hold_days = it.hold_time -( (models.datetime.now() - _booked_on).days)
+            hold_days = it.hold_time -( (datetime.now() - _booked_on).days)
         
             if is_on_occupy:
-                occupy_days = it.occupy_time - ((models.datetime.now() - _booking_ref.occupied_date)).days
+                occupy_days = it.occupy_time - ((datetime.now() - _booking_ref.occupied_date)).days
             else:
                 occupy_days = "NOT ON OCCUPY"
 
@@ -125,7 +132,7 @@ def return_item():
     
     item.booking_ref = None
     item.available = True
-    models.save_data_base(items)
+    save_data_base(items)
     msg["success"] = True
     
     return jsonify(msg)
@@ -155,8 +162,8 @@ def own_item():
     # change the hold state
     item.booking_ref.on_hold_state = False
     item.booking_ref.on_occupied_state = True
-    item.booking_ref.occupied_date = models.datetime.now()
-    models.save_data_base(items)
+    item.booking_ref.occupied_date = datetime.now()
+    save_data_base(items)
 
     msg["success"] = True
     
@@ -172,7 +179,7 @@ def admin_dashboard():
         return redirect('/campusend')
     
     # check for items that have passed their max hold date or max booked date
-    today = models.datetime.now().day
+    today = datetime.now().day
    
     for it in items:
         if not it.booking_ref: continue
@@ -183,7 +190,7 @@ def admin_dashboard():
             it.booking_ref = None
             it.available = True
 
-            models.save_data_base(items)
+            save_data_base(items)
         
         elif it.booking_ref.on_occupied_state and ((today - it.booking_ref.occupied_date.day )> it.occupy_time):
             # occupy time has passed, time to release it
@@ -191,7 +198,7 @@ def admin_dashboard():
             it.booking_ref.is_expired = True
 
             # mail FSU?
-            models.save_data_base(items)
+            save_data_base(items)
             
 
     hold_items = [item for item in items if not item.available and item.booking_ref.on_hold_state]
@@ -249,7 +256,7 @@ def admin_dashboard():
 @app.route("/info", methods=['GET'])
 def info():
     
-    def date_as_string(datetime_obj : models.datetime):
+    def date_as_string(datetime_obj : datetime):
         return datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
     
     ''' Returns the information about a certain item (How much time for hold-clearing and stuffs)'''
@@ -273,10 +280,10 @@ def info():
         _booked_on = _booking_ref.booked_date
         is_on_hold =_booking_ref.on_hold_state
         is_on_occupy = _booking_ref.on_occupied_state
-        hold_days = _ctx_item.hold_time -( (models.datetime.now() - _booked_on).days)
+        hold_days = _ctx_item.hold_time -( (datetime.now() - _booked_on).days)
         
         if is_on_occupy:
-            occupy_days = _ctx_item.occupy_time - ((models.datetime.now() - _booking_ref.occupied_date)).days
+            occupy_days = _ctx_item.occupy_time - ((datetime.now() - _booking_ref.occupied_date)).days
         else:
             occupy_days = 0
 
@@ -338,15 +345,15 @@ def validate():
 
     else:
         # register a booking
-        _booking = models.Booking(email,models.datetime.now())
+        _booking = Booking(email,datetime.now())
         session_item.booking_ref = _booking
 
         # decrement the availables
         session_item.available = False
 
         # commit those updated changes
-        models.save_data_base(items)
-        items = models.load_data_base() # TODO: remove?
+        save_data_base(items)
+        items = load_data_base() # TODO: remove?
 
         flash(f"""Sucessfully done, your item is in a hold state, 
                 please physically go and take it in {session_item.hold_time} days or will be redacted from holdings,
@@ -358,6 +365,6 @@ def validate():
 # ---------------------------- 
 
 if __name__ == "__main__":
-    models.fill_test_data()
-    items = models.load_data_base()
+    fill_test_data()
+    items = load_data_base()
     app.run(debug=True)

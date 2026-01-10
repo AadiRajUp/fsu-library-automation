@@ -2,86 +2,102 @@
 # models.py -> contains database models and relevants (pickle for now, TODO: use a database)
 #-------------------------------------------------------------------------------------------
 
-###########################################################
-import pickle
-from dataclasses import dataclass
+from sqlalchemy import (
+    Column, Integer, String, Boolean, DateTime, ForeignKey
+)
+from sqlalchemy.orm import relationship
 from datetime import datetime
-#########################################################
+from db import Base
+from db import SessionLocal
+
+# ---------------- CONSTANTS ----------------
+DATA_BASE_URL = "sqlite:://app.db"
+# -------------------------------------------
+
+# ---------------- Database Models ----------
+
+class Item(Base):
+    __tablename__ = "items"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    description = Column(String)
+    image_path = Column(String, nullable=True)
+
+    available = Column(Boolean, default=True)
+
+    hold_time = Column(Integer, default=3)  # Max-days before return must be done
+    occupy_time = Column(Integer, default=15) # Max-days after booking item must be taken
+
+    bookings = relationship("Booking", back_populates="item")
+
+class Booking(Base):
+    __tablename__ = "bookings"
+
+    id = Column(Integer, primary_key=True)
+
+    user_email = Column(String, nullable=False)
+
+    booked_date = Column(DateTime, default=datetime.now())
+    occupied_date = Column(DateTime, nullable=True)
+
+    on_hold_state = Column(Boolean, default=True)
+    on_occupied_state = Column(Boolean, default=False)
+    is_expired = Column(Boolean, default=False)
+
+    item_id = Column(Integer, ForeignKey("items.id"))
+    item = relationship("Item", back_populates="bookings")
 
 
-######### CONSTANTS ################################
-DATA_FILE = "data.pkl"
-################################################
+# ---------------- DATABASE FUNCTIONS ----------------
 
-@dataclass
-class Booking:
-    '''
-        Stores bookings info
-    '''
-    user_email:str
-    
-    booked_date:datetime  # booked is the first time they hold it 
-    occupied_date:datetime | None= None # occupy happens when they physically come and take it 
-
-    on_hold_state:bool = True
-    on_occupied_state:bool = False
-    is_expired = False # happens when occupied days crosses the max occupy days
-
-
-@dataclass
-class Item:
-    '''
-        Item : holds information about a registered item
-    '''
-    id:int
-    name:str
-    description:str
-    image_path:str|None 
-    available: bool = True
-
-    hold_time:int = 3 # max amount of days before your hold freezes and someone else can register
-    occupy_time:int = 15 # max amount of days before you HAVE to return it
-
-    booking_ref: Booking = None # maybe have a history
-
-
-def save_data_base(data = list[Item]) -> None:
-    '''
-        Saves some updated data chunk into the databse (currently through pickle file).
-    '''
+def get_db():
+    db = SessionLocal()
     try:
-        with open(DATA_FILE, 'wb') as file:
+        yield db
+    finally:
+        db.close()
+
+
+def save_data_base(data: List[Item]) -> None:
+    """
+    Saves updated data into the database (pickle file for now).
+    """
+    try:
+        with open(DATA_FILE, "wb") as file:
             pickle.dump(data, file)
-    except Exception as e :
-        print(f'[COULDN"T SAVE FILE IN THE DATABASE BECAUSE OF {e}]')
+    except Exception as e:
+        print(f'[ERROR] Could not save database: {e}')
 
-def load_data_base() -> list[Item]:
-    ''' 
-        Loads the data (currently through a pickle file) and returns
-        some reference to it. (currently all the values in a list)
-    '''
+
+def load_data_base() -> List[Item]:
+    """
+    Loads data from the pickle database.
+    """
     try:
-        with open(DATA_FILE, 'rb') as file:
-            return  pickle.load(file)
+        with open(DATA_FILE, "rb") as file:
+            return pickle.load(file)
     except FileNotFoundError:
-            print("[STORED DATA NOT FOUND, RETURNING EMPTY]")
-            return []
+        print("[INFO] Stored data not found, returning empty list")
+        return []
+    except Exception as e:
+        print(f"[ERROR] Failed to load database: {e}")
+        return []
+
 
 def fill_test_data() -> None:
-    '''
-        Fills random data for testing purposes
-    '''
-    _test_data = [
-          Item(1,"Football","Some ball", "stuff/stuff"),
-          Item(2,"Frankenstien","Crazy book", "stuff/stuff"),
-          Item(3,"Cricket Bat","For cricket", "stuff/stuff"),
-          Item(4,"Mouse","Not a computer one, a  real one", "stuff/stuff"),
-          Item(5,"Helicopter","Useful for flying", "stuff/stuff"),
-     ]
+    """
+    Fills random test data (overwrites existing database).
+    """
+    test_data = [
+        Item(1, "Football", "Some ball", "stuff/stuff"),
+        Item(2, "Frankenstein", "Crazy book", "stuff/stuff"),
+        Item(3, "Cricket Bat", "For cricket", "stuff/stuff"),
+        Item(4, "Mouse", "Not a computer one, a real one", "stuff/stuff"),
+        Item(5, "Helicopter", "Useful for flying", "stuff/stuff"),
+    ]
 
-    
-    with open(DATA_FILE ,'wb') as file:
-        pickle.dump(_test_data, file)
-    print("Test data wrote succesfully ")
-               
+    with open(DATA_FILE, "wb") as file:
+        pickle.dump(test_data, file)
 
+    print("[INFO] Test data written successfully")
