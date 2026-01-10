@@ -233,7 +233,7 @@ def own_item():
 @app.route("/info")
 def info():
     ''' Returns the information about a certain item (How much time for hold-clearing and stuffs)'''
-    
+
     item_id = request.args.get("id")
 
     db = get_db()
@@ -282,6 +282,8 @@ def info():
 
 @app.route("/validation")
 def validate():
+    ''' Validates the items and email'''
+
     item_id = request.args.get("id")
     email = request.args.get("email")
 
@@ -304,6 +306,7 @@ def validate():
     )
 
     item.available = False
+    hold_time = item.hold_time
 
     db.add(booking)
     db.commit()
@@ -311,7 +314,7 @@ def validate():
 
     flash(
         f"Item held successfully. "
-        f"Collect within {item.hold_time} days.",
+        f"Collect within {hold_time} days.",
         "info"
     )
 
