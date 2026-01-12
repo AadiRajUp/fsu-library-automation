@@ -1,18 +1,8 @@
 
 function click_book(id){
-    // Dialog or Pop-up for asking email address
-
-    email = prompt("Enter your email address: ");
-
-    if (email == null){
-        alert("Email can't be null.");
-        return;
-    }
-
     // validatation
     const params = new URLSearchParams( {
         id : id,
-        email : email
     });
 
 

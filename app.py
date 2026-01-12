@@ -3,10 +3,13 @@
 #----------------------------------------
 from flask import (
     Flask, render_template, request, redirect, flash,
-    session, jsonify
+    session, jsonify, url_for
 )
 from flask_cors import CORS
 from datetime import datetime
+from dotenv import load_dotenv
+from authlib.integrations.flask_client import OAuth
+import os
 
 from db import SessionLocal
 from models import (
@@ -18,9 +21,25 @@ from models import (
     get_items_on_occupy
 )
 
+load_dotenv()
+
 app = Flask(__name__)
 CORS(app)
 app.secret_key = "blahblah22"
+
+# oauth thing
+oauth = OAuth(app)
+
+oauth.register(
+    name='google',
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+
 
 # ----------------------------------
 app = Flask(__name__)
@@ -281,11 +300,48 @@ def info():
     )
 
 @app.route("/validation")
+def oauth_thing():
+    item_id = request.args.get("id")
+    if not (item_id):
+        flash("Invalid request")
+        return redirect("/")
+    
+    session['id'] = item_id
+
+    redirect_uri = url_for('auth_callback',_external = True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@app.route('/auth/callback')
+def auth_callback():
+    token = oauth.google.authorize_access_token()
+    user = token['userinfo']
+
+    # session['user'] = {
+    #     'id': user['sub'],
+    #     'email': user['email'],
+    #     'name': user['name'],
+    #     'picture': user['picture']
+    # }
+
+    email = user.get('email')
+    verified = user.get("email_verified", False)
+    
+    if email.endswith('@pcampus.edu.np') and verified:
+        session['email'] = email
+        return redirect('/final_validation')
+    if not email.endswith("@pcampus.edu.np"):
+        flash("Please use the official Pulchowk Campus Mail")
+        session['email'] = None
+        session['id'] = None
+        return redirect('/')
+
+
+@app.route("/final_validation")
 def validate():
     ''' Validates the items and email'''
 
-    item_id = request.args.get("id")
-    email = request.args.get("email")
+    item_id = session.get("id")
+    email = session.get('email')
 
     if not (item_id and email):
         flash("Invalid request")
