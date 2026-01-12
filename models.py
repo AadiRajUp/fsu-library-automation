@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------------------
-# models.py -> contains database models and relevants (pickle for now, TODO: use a database)
+# models.py -> contains database models and relevants
 #-------------------------------------------------------------------------------------------
 
 from sqlalchemy import (

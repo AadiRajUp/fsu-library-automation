@@ -213,7 +213,7 @@ def return_item():
         return jsonify(success=False, remarks="Invalid item")
 
     booking = item.bookings[-1]
-    booking.is_expired = True
+    booking.is_expired = False
     booking.on_occupied_state = False
     item.available = True
 
