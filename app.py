@@ -61,6 +61,7 @@ def get_db():
 # ------------------------
 
 @app.route("/")
+@app.route("/library/")
 @app.route("/library")
 def home():
     db = get_db()
