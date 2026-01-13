@@ -7,11 +7,40 @@ from db import SessionLocal
 from models import Item, Booking
 
 ITEMS = [
-    ("Football", "Some ball"),
-    ("Frankenstein", "Crazy book"),
-    ("Cricket Bat", "For cricket"),
-    ("Mouse", "Not a computer one"),
-    ("Helicopter", "Useful for flying"),
+    "Siddhartha",
+    "The Power Of Your Subconsious Mind",
+    "My Brilliant Friend",
+    "Zero to One",
+    "The Art of War",
+    "How to Win And Influence People",
+    "The Greate Gatsby",
+    "The Plague",
+    "One Thousand Years of Solitude",
+    "Frankenstien",
+    "The Autobiography of A Yogi",
+    "Metamorphosis",
+    "The Diary of a Young Girl",
+    "Pride and Prejudice",
+    "The 3 Mistakes of My Life",
+    "A Short History of Nepal",
+    "The Bill Jar",
+    "Russian History - A short Introduction",
+    "The Napolean Wars",
+    "Fascim",
+    "करोडौँ कस्तुरी",
+    "सुम्निमा",
+    "सेरो धरती",
+    "प्रिय सुकी",
+    "कर्नाली ब्लुज",
+    "जीवन काँडा कि फुल",
+    "शिरीषको फूल",
+    "गुलाबी उमेर",
+    "सेतो बाघ",
+    "एक्लो",
+    "समर लभ",
+    "एक सर्को माया",
+    "दमिनी भीर",
+    "पागल बस्ती"
 ]
 
 def seed():
@@ -22,13 +51,13 @@ def seed():
     db.commit()
 
     items = []
-    for name, desc in ITEMS:
+    for name in ITEMS:
         item = Item(
             name=name,
-            description=desc,
-            image_path="stuff/stuff",
-            hold_time=random.randint(2, 5),
-            occupy_time=random.randint(7, 20),
+            description="",
+            image_path="",
+            hold_time=2,
+            occupy_time=15,
         )
         db.add(item)
         items.append(item)

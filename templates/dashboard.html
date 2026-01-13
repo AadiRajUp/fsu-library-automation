@@ -1,526 +1,131 @@
-<!DOCTYPE html>
-<html lang="ne">
-<head>
+<!-- Dashboard as seen by the librarian -->
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>प्रबन्धक ड्यासबोर्ड</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <title>Dashboard</title>
+ </head>
+ <body>
+    <center><h2>बुक गरिएका तर नलगिसकेका सामानहरुको वृस्तित विवरण</h2></center>
+    <br><br>
 
-        body {
-            font-family: 'Noto Sans Devanagari', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            padding: 30px;
-            font-size: 18px;
-        }
+    <table>
+        <tr>
+            <th>नाम</th>
+            <th>फोटो</th>
+            <th>लग्नेको रोल नम्बर</th>
+            <th>बुक गरिएको मिति</th>
+            <th>सामान हस्तान्तरण गरियो</th>
+        </tr>
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
+        {% for item in items %}
+            <tr>
+                <th>{{item[0]}}</th>
+                <th>{{item[1]}}</th>
+                <th>{{item[2]}}</th>
+                <th>{{item[3]}}</th>
+                <!-- ID is item[4] -->
+                <th><Button onclick="pass_ownership({{item[4]}})">विद्यार्थी सामान लिन आए</Button></th>
+            </tr>
 
-        .main-header {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            margin-bottom: 40px;
-        }
+        {% endfor%}
+    </table>
+    <br><br>
+    <h2>बुक गरिएका र विद्यार्थी ले लयाउनु पर्ने सामानहरु</h2>
 
-        .main-header h1 {
-            color: #1e3c72;
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
+    <table>
+        <tr>
+            <th>नाम</th>
+            <th>फोटो</th>
+            <th>लानेको रोल नं</th>
+            <th>समय वाँकि</th>
+            <th>सामान हस्तान्तरण गरियो ?</th>
+        </tr>
 
-        .main-header p {
-            color: #6c757d;
-            font-size: 1.3rem;
-        }
+            {% for item in returns %}
+            <tr>
+                <th>{{item[0]}}</th>
+                <th>{{item[1]}}</th>
+                <th>{{item[2]}}</th>
+                <th>{{item[3]}}</th>
+                <!-- ID is item[4] -->
+                <th><Button onclick="return_owernship({{item[4]}})">विद्यार्थी सामान पुर्याउन आए</Button></th>
+            </tr>
 
-        .section {
-            background: white;
-            border-radius: 15px;
-            padding: 35px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
+        {% endfor%}
 
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #e9ecef;
-        }
+    </table>
 
-        .section-icon {
-            font-size: 2.5rem;
-        }
+    <br><br>
+    <h2>म्याद सकिदा पनि नफर्काएका हरु</h2>
 
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2a5298;
-        }
+    <table>
+        <tr>
+            <th>नाम</th>
+            <th>फोटो</th>
+            <th>लानेको रोल नं</th>
+            <th>समय वाँकि</th>
+        </tr>
 
-        .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-left: auto;
-        }
+            {% for item in expired %}
+            <tr>
+                <th>{{item[0]}}</th>
+                <th>{{item[1]}}</th>
+                <th>{{item[2]}}</th>
+                <th>{{item[3]}}</th>
+                <!-- ID is item[4] -->
+            </tr>
 
-        .badge-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
+        {% endfor%}
 
-        .badge-active {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
+    </table>
 
-        .badge-expired {
-            background: #f8d7da;
-            color: #721c24;
-        }
+    
+ </body>
 
-        .table-container {
-            overflow-x: auto;
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            font-size: 1.1rem;
-        }
-
-        thead {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-        }
-
-        th {
-            padding: 20px 15px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        td {
-            padding: 20px 15px;
-            border-bottom: 1px solid #e9ecef;
-            color: #495057;
-            font-size: 1.1rem;
-        }
-
-        tbody tr {
-            transition: all 0.3s;
-        }
-
-        tbody tr:hover {
-            background: #f8f9fa;
-            transform: scale(1.01);
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .item-name {
-            font-weight: 600;
-            color: #2a5298;
-            font-size: 1.2rem;
-        }
-
-        .roll-number {
-            font-weight: 700;
-            color: #495057;
-            background: #e9ecef;
-            padding: 5px 12px;
-            border-radius: 5px;
-            display: inline-block;
-        }
-
-        .btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Noto Sans Devanagari', sans-serif;
-            white-space: nowrap;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
-        }
-
-        .days-remaining {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        .days-high {
-            color: #28a745;
-        }
-
-        .days-medium {
-            color: #ffc107;
-        }
-
-        .days-low {
-            color: #dc3545;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state-text {
-            font-size: 1.3rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            font-size: 1.2rem;
-            opacity: 0.95;
-        }
-
-        .loading {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px 50px;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .overlay.active {
-            display: block;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="main-header">
-            <h1>📚 पुस्तकालय प्रबन्धक ड्यासबोर्ड</h1>
-            <p>सामानहरूको व्यवस्थापन र निगरानी</p>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ items|length }}</div>
-                <div class="stat-label">नलगिएका सामानहरू</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ returns|length }}</div>
-                <div class="stat-label">फर्काउनु पर्ने सामानहरू</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ expired|length }}</div>
-                <div class="stat-label">म्याद सकिएका</div>
-            </div>
-        </div>
-
-        <!-- Section 1: Booked but not picked up -->
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon">⏳</span>
-                <h2 class="section-title">बुक गरिएका तर नलगिएका सामानहरू</h2>
-                <span class="status-badge badge-pending">{{ items|length }} सामानहरू</span>
-            </div>
-
-            {% if items and items|length > 0 %}
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>सामानको नाम</th>
-                            <th>फोटो</th>
-                            <th>विद्यार्थीको रोल नम्बर</th>
-                            <th>बुक गरिएको मिति</th>
-                            <th>कार्य</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in items %}
-                        <tr>
-                            <td class="item-name">{{ item[0] }}</td>
-                            <td>{{ item[1] }}</td>
-                            <td><span class="roll-number">{{ item[2] }}</span></td>
-                            <td>{{ item[3] }}</td>
-                            <td>
-                                <button class="btn btn-primary" onclick="pass_ownership({{ item[4] }})">
-                                    ✅ विद्यार्थी सामान लिन आए
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">📭</div>
-                <p class="empty-state-text">कुनै पनि नलगिएका सामानहरू छैनन्</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Section 2: Items that need to be returned -->
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon">🔄</span>
-                <h2 class="section-title">लगिएका र फर्काउनुपर्ने सामानहरू</h2>
-                <span class="status-badge badge-active">{{ returns|length }} सामानहरू</span>
-            </div>
-
-            {% if returns and returns|length > 0 %}
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>सामानको नाम</th>
-                            <th>फोटो</th>
-                            <th>विद्यार्थीको रोल नम्बर</th>
-                            <th>बाँकी समय</th>
-                            <th>कार्य</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in returns %}
-                        <tr>
-                            <td class="item-name">{{ item[0] }}</td>
-                            <td>{{ item[1] }}</td>
-                            <td><span class="roll-number">{{ item[2] }}</span></td>
-                            <td>
-                                <span class="days-remaining 
-                                    {% if item[3]|int > 5 %}days-high
-                                    {% elif item[3]|int > 2 %}days-medium
-                                    {% else %}days-low
-                                    {% endif %}">
-                                    {{ item[3] }} दिन बाँकी
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-secondary" onclick="return_ownership({{ item[4] }})">
-                                    ↩️ विद्यार्थी सामान फर्काउन आए
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">✅</div>
-                <p class="empty-state-text">सबै सामानहरू फर्काइसकिएको छ</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Section 3: Expired items -->
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon">⚠️</span>
-                <h2 class="section-title">म्याद सकिएका तर नफर्काइएका सामानहरू</h2>
-                <span class="status-badge badge-expired">{{ expired|length }} सामानहरू</span>
-            </div>
-
-            {% if expired and expired|length > 0 %}
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>सामानको नाम</th>
-                            <th>फोटो</th>
-                            <th>विद्यार्थीको रोल नम्बर</th>
-                            <th>म्याद सकिएको समय</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in expired %}
-                        <tr style="background: #fff5f5;">
-                            <td class="item-name" style="color: #dc3545;">{{ item[0] }}</td>
-                            <td>{{ item[1] }}</td>
-                            <td><span class="roll-number" style="background: #f8d7da; color: #721c24;">{{ item[2] }}</span></td>
-                            <td style="color: #dc3545; font-weight: 700;">{{ item[3] }} दिन अघि</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">🎉</div>
-                <p class="empty-state-text">कुनै पनि म्याद सकिएका सामानहरू छैनन्</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="overlay" id="overlay"></div>
-    <div class="loading" id="loading">⏳ प्रशोधन गरिदै छ...</div>
-
-    <script>
-        function showLoading() {
-            document.getElementById('overlay').classList.add('active');
-            document.getElementById('loading').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('overlay').classList.remove('active');
-            document.getElementById('loading').classList.remove('active');
-        }
-
-        function pass_ownership(id) {
-            if (!confirm('के तपाईं पक्का हुनुहुन्छ कि विद्यार्थीले सामान लिए?')) {
-                return;
-            }
-
-            showLoading();
-
-            fetch("/own-item", {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
+ <script>
+    function pass_ownership(id){
+        // makes a request, to change the item from hold state to own state
+        fetch("/own-item",{
+            method:'POST',
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(
+                {
                     id: id
-                })
-            })
-            .then(r => r.json())
-            .then(d => {
-                hideLoading();
-                if (d.success == true) {
-                    window.location.href = "/arena";
-                } else {
-                    alert('त्रुटि: सामान हस्तान्तरण असफल भयो');
                 }
-            })
-            .catch(e => {
-                hideLoading();
-                console.log(e);
-                alert('त्रुटि: ' + e.message);
-            });
-        }
-
-        function return_ownership(id) {
-            if (!confirm('के तपाईं पक्का हुनुहुन्छ कि विद्यार्थीले सामान फर्काए?')) {
-                return;
+            )   
+        }).then( r=> r.json())
+        .then( d=>{
+            if (d.success == true){
+                window.location.href = "/arena";
             }
+        })
+        .catch( e => console.log(e));
+    }
 
-            showLoading();
-
-            fetch("/return", {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
+    function return_owernship(id){
+        // makes a request, to change the item from hold state to own state
+        fetch("/return",{
+            method:'POST',
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(
+                {
                     id: id
-                })
-            })
-            .then(r => r.json())
-            .then(d => {
-                hideLoading();
-                if (d.success == true) {
-                    window.location.href = "/arena";
-                } else {
-                    alert('त्रुटि: सामान फिर्ता असफल भयो');
                 }
-                console.log(d);
-            })
-            .catch(e => {
-                hideLoading();
-                console.log(e);
-                alert('त्रुटि: ' + e.message);
-            });
-        }
-    </script>
-</body>
-</html>
+            )   
+        }).then( r=> r.json())
+        .then( d=>{
+            if (d.success == true){
+                window.location.href = "/arena";
+            }
+            console.log(d);
+        })
+        .catch( e => console.log(e));
+    }
+ </script>
+ </html>
