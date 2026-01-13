@@ -3,13 +3,14 @@
 #----------------------------------------
 from flask import (
     Flask, render_template, request, redirect, flash,
-    session, jsonify, url_for
+    session, jsonify, url_for, Blueprint
 )
 from flask_cors import CORS
 from datetime import datetime
 from dotenv import load_dotenv
 from authlib.integrations.flask_client import OAuth
 import os
+
 
 from db import SessionLocal
 from models import (
@@ -26,6 +27,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 app.secret_key = "blahblah22"
+
 
 # oauth thing
 oauth = OAuth(app)
@@ -58,6 +60,7 @@ def get_db():
 # Routes
 # ------------------------
 
+@app.route("/")
 @app.route("/library")
 def home():
     db = get_db()
