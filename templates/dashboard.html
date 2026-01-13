@@ -87,7 +87,7 @@
  <script>
     function pass_ownership(id){
         // makes a request, to change the item from hold state to own state
-        fetch("/own-item",{
+        fetch("/library/own-item",{
             method:'POST',
             headers:{
                 "Content-Type": "application/json"
@@ -100,7 +100,7 @@
         }).then( r=> r.json())
         .then( d=>{
             if (d.success == true){
-                window.location.href = "/arena";
+                window.location.href = "/library/arena";
             }
         })
         .catch( e => console.log(e));
@@ -108,7 +108,7 @@
 
     function return_owernship(id){
         // makes a request, to change the item from hold state to own state
-        fetch("/return",{
+        fetch("/library/return",{
             method:'POST',
             headers:{
                 "Content-Type": "application/json"
@@ -121,7 +121,7 @@
         }).then( r=> r.json())
         .then( d=>{
             if (d.success == true){
-                window.location.href = "/arena";
+                window.location.href = "/library/arena";
             }
             console.log(d);
         })

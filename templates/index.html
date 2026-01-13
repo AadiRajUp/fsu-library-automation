@@ -62,15 +62,15 @@ function click_book(id){
     });
 
 
-    window.location.href = `/validation?${params.toString()}`
+    window.location.href = `/library/validation?${params.toString()}`
 }
 
 
 function click_info(id) {
-    const url = `http://localhost:5000/info?id=${encodeURIComponent(id)}`;
+    const url = `/library/info?id=${encodeURIComponent(id)}`;
 
     fetch(url,{
-        method:"GET"
+        method:"GET",
     })
         .then(response => {
             if (!response.ok) {

@@ -58,14 +58,14 @@ def get_db():
 # Routes
 # ------------------------
 
-@app.route("/")
+@app.route("/library")
 def home():
     db = get_db()
     items = get_all_items(db)
     db.close()
     return render_template("index.html", items=items)
 
-@app.route("/user-bookings", methods=["POST"])
+@app.route("/library/user-bookings", methods=["POST"])
 def user_history():
     ''' When user wants to see all of the stuff they have booked for an email. '''
 
@@ -73,7 +73,7 @@ def user_history():
 
     if not email:
         flash("Email is required")
-        return redirect("/")
+        return redirect("/library")
 
     db = get_db()
     bookings = get_user_bookings(db, email)
@@ -103,7 +103,7 @@ def user_history():
     db.close()
     return render_template("user_bookings.html", items=rows)
 
-@app.route("/campusend", methods=["GET", "POST"])
+@app.route("/library/campusend", methods=["GET", "POST"])
 def admin():
     ''' Interface visible for the FSU representative'''
 
@@ -115,20 +115,20 @@ def admin():
 
     if not (username and password):
         flash("Please enter credentials")
-        return redirect("/campusend")
+        return redirect("/library/campusend")
 
     if username == "ram" and password == "hari":
         session["logged_in"] = True
-        return redirect("/arena")
+        return redirect("/library/arena")
 
     flash("Wrong username or password")
-    return redirect("/campusend")
+    return redirect("/library/campusend")
 
-@app.route("/arena")
+@app.route("/library/arena")
 def admin_dashboard():
     if not session.get("logged_in"):
         flash("You are not authenticated")
-        return redirect("/campusend")
+        return redirect("/library/campusend")
 
     db = get_db()
     now = datetime.utcnow()
@@ -196,7 +196,7 @@ def admin_dashboard():
         expired=expired_items
     )
 
-@app.route("/return", methods=["POST"])
+@app.route("/library/return", methods=["POST"])
 def return_item():
     ''' Changes the state of item to be available again and returned '''
 
@@ -222,7 +222,7 @@ def return_item():
 
     return jsonify(success=True)
 
-@app.route("/own-item", methods=["POST"])
+@app.route("/library/own-item", methods=["POST"])
 def own_item():
     ''' Change the state of the item from hold state to own state'''
 
@@ -249,7 +249,7 @@ def own_item():
     return jsonify(success=True)
 
 
-@app.route("/info")
+@app.route("/library/info")
 def info():
     ''' Returns the information about a certain item (How much time for hold-clearing and stuffs)'''
 
@@ -299,19 +299,19 @@ def info():
         occupied_days=occupy_days,
     )
 
-@app.route("/validation")
+@app.route("/library/validation")
 def oauth_thing():
     item_id = request.args.get("id")
     if not (item_id):
         flash("Invalid request")
-        return redirect("/")
+        return redirect("/library")
     
     session['id'] = item_id
 
     redirect_uri = url_for('auth_callback',_external = True)
     return oauth.google.authorize_redirect(redirect_uri)
 
-@app.route('/auth/callback')
+@app.route('/library/auth/callback')
 def auth_callback():
     token = oauth.google.authorize_access_token()
     user = token['userinfo']
@@ -328,15 +328,15 @@ def auth_callback():
     
     if email.endswith('@pcampus.edu.np') and verified:
         session['email'] = email
-        return redirect('/final_validation')
+        return redirect('/library/final_validation')
     if not email.endswith("@pcampus.edu.np"):
         flash("Please use the official Pulchowk Campus Mail")
         session['email'] = None
         session['id'] = None
-        return redirect('/')
+        return redirect('/library')
 
 
-@app.route("/final_validation")
+@app.route("/library/final_validation")
 def validate():
     ''' Validates the items and email'''
 
@@ -345,7 +345,7 @@ def validate():
 
     if not (item_id and email):
         flash("Invalid request")
-        return redirect("/")
+        return redirect("/library")
 
     db = get_db()
     item = item_by_id(db, item_id)
@@ -353,7 +353,7 @@ def validate():
     if not item or not item.available:
         db.close()
         flash("Item not available")
-        return redirect("/")
+        return redirect("/library")
 
     booking = Booking(
         user_email=email,
@@ -374,7 +374,7 @@ def validate():
         "info"
     )
 
-    return redirect("/")
+    return redirect("/library")
 
 
 # @app.route("/validation",methods=["GET","POST"])
