@@ -312,7 +312,7 @@ def oauth_thing():
     
     session['id'] = item_id
 
-    redirect_uri = url_for('auth_callback',_external = True)
+    redirect_uri = url_for('/library/auth/callback',_external = True)
     return oauth.google.authorize_redirect(redirect_uri)
 
 @app.route('/library/auth/callback')
