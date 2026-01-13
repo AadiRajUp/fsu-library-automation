@@ -1,0 +1,32 @@
+<!-- Show users their bookings based on their email -->
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Bookings (present)</title>
+ </head>
+ <body>
+    Your Bookings will be visible below:
+
+    <table>
+        <tr>
+            <th>Item ID</th>
+            <th>Name</th>
+            <th>Booked date</th>
+            <th>Hold days left</th>
+            <th>Booking days left</th>
+        </tr>
+
+        {% for it in items %}
+        <tr>
+            <td>{{it[0]}}</td>
+            <td>{{it[1]}}</td>
+            <td>{{it[2]}}</td>
+            <td>{{it[3]}}</td>
+            <td>{{it[4]}}</td>
+        </tr>
+        {%endfor%}
+    </table>
+ </body>
+ </html>
