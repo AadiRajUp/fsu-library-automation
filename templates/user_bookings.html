@@ -1,32 +1,290 @@
-<!-- Show users their bookings based on their email -->
- <!DOCTYPE html>
- <html lang="en">
- <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Bookings (present)</title>
- </head>
- <body>
-    Your Bookings will be visible below:
+    <title>Your Bookings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <table>
-        <tr>
-            <th>Item ID</th>
-            <th>Name</th>
-            <th>Booked date</th>
-            <th>Hold days left</th>
-            <th>Booking days left</th>
-        </tr>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
 
-        {% for it in items %}
-        <tr>
-            <td>{{it[0]}}</td>
-            <td>{{it[1]}}</td>
-            <td>{{it[2]}}</td>
-            <td>{{it[3]}}</td>
-            <td>{{it[4]}}</td>
-        </tr>
-        {%endfor%}
-    </table>
- </body>
- </html>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .back-btn::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            flex: 1;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h2 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .empty-state p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .days-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .days-good {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .days-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .days-critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info-card {
+            background: #e7f3ff;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .info-card p {
+            color: #004085;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            thead th, tbody td {
+                padding: 8px;
+            }
+
+            .back-btn {
+                align-self: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            /* Stack table on very small screens */
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tbody tr {
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+            tbody tr:hover {
+                background: white;
+            }
+
+            tbody td {
+                border: none;
+                position: relative;
+                padding-left: 45%;
+                text-align: right;
+            }
+
+            tbody td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                font-weight: 600;
+                color: #2c3e50;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/library" class="back-btn">Back to Library</a>
+            <h1>Your Bookings</h1>
+        </div>
+        <p class="subtitle">View and manage your current library bookings</p>
+
+        {% if items and items|length > 0 %}
+            <div class="info-card">
+                <p>📋 You have <strong>{{ items|length }}</strong> active booking{{ 's' if items|length != 1 else '' }}</p>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item ID</th>
+                            <th>Name</th>
+                            <th>Booked Date</th>
+                            <th>Hold Days Left</th>
+                            <th>Booking Days Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for it in items %}
+                        <tr>
+                            <td data-label="Item ID">{{ it[0] }}</td>
+                            <td data-label="Name">{{ it[1] }}</td>
+                            <td data-label="Booked Date">{{ it[2] }}</td>
+                            <td data-label="Hold Days Left">
+                                {% set hold_days = it[3]|int if it[3] else 0 %}
+                                <span class="days-badge {% if hold_days > 3 %}days-good{% elif hold_days > 1 %}days-warning{% else %}days-critical{% endif %}">
+                                    {{ it[3] if it[3] else 'N/A' }}
+                                </span>
+                            </td>
+                            <td data-label="Booking Days Left">
+                                {% set booking_days = it[4]|int if it[4] else 0 %}
+                                <span class="days-badge {% if booking_days > 5 %}days-good{% elif booking_days > 2 %}days-warning{% else %}days-critical{% endif %}">
+                                    {{ it[4] if it[4] else 'N/A' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📚</div>
+                <h2>No Active Bookings</h2>
+                <p>You don't have any items currently booked.</p>
+                <a href="/library" class="back-btn" style="display: inline-flex;">Browse Available Items</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

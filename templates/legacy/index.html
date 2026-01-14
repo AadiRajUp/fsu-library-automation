@@ -1,0 +1,97 @@
+
+<!-- Index page as seen by the students -->
+<html>
+
+	<body>
+		Bare Minimum for test purposes
+
+		<h2> Select a thing you want from the list below. information about it is provided </h2> 
+		<h3> TODO: Implement a search feature</h3>
+	</body>
+
+	<!-- flash messages -->
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			<ul class="flashes">
+			{% for category, message in messages %}
+			<li class="{{ category }}">{{ message }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+
+	<!-- section for searching items with their email -->
+	<form action="/library/user-bookings" method="post">
+		<label for="email">Enter email</label>
+		<input type="email" name="email">
+
+		<button>Search for this mail</button>
+	</form>
+
+	<!-- main section for items -->
+	<table>
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Image</th>
+			<th>Available</th>
+			<th>Info</th>
+			<th>Book</th>
+		</tr>
+
+		{% for item in items %}
+			<tr>
+				<th>{{item.id}}</th>
+				<th>{{item.name}}</th>
+				<th>{{item.description}}</th>
+				<th>{{item.image_path}}</th>
+				<th>{{item.available}}</th>
+				<th><Button onclick="click_info({{item.id}})">Info?</Button></th>
+				<th><Button onclick="click_book({{item.id}})" {% if item.available < 1%}disabled{%endif%}>Book?</Button></th>
+			</tr>
+		{% endfor %}
+	</table>
+
+	<script>
+
+function click_book(id){
+    // validatation
+    const params = new URLSearchParams( {
+        id : id,
+    });
+
+
+    window.location.href = `/library/validation?${params.toString()}`
+}
+
+
+function click_info(id) {
+    const url = `/library/info?id=${encodeURIComponent(id)}`;
+
+    fetch(url,{
+        method:"GET",
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(
+                `SUCESS: ${data.success}\n` +
+                `NAME: ${data.name}\n` +
+                `BOOKED ON : ${data.booked_on}\n`+
+                `HOLD : ${data.hold_state}\n` +
+                `hold days : ${data.hold_days}\n`
+            );
+        })
+        .catch(error => {
+            alert("Error: " + error.message);
+        });
+}
+
+	</script>
+
+	</html>

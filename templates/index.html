@@ -1,97 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Booking System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<!-- Index page as seen by the students -->
-<html>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
 
-	<body>
-		Bare Minimum for test purposes
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-		<h2> Select a thing you want from the list below. information about it is provided </h2> 
-		<h3> TODO: Implement a search feature</h3>
-	</body>
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
 
-	<!-- flash messages -->
-	{% with messages = get_flashed_messages(with_categories=true) %}
-		{% if messages %}
-			<ul class="flashes">
-			{% for category, message in messages %}
-			<li class="{{ category }}">{{ message }}</li>
-			{% endfor %}
-			</ul>
-		{% endif %}
-	{% endwith %}
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
 
-	<!-- section for searching items with their email -->
-	<form action="/library/user-bookings" method="post">
-		<label for="email">Enter email</label>
-		<input type="email" name="email">
+        /* Flash Messages */
+        .flashes {
+            list-style: none;
+            margin-bottom: 20px;
+        }
 
-		<button>Search for this mail</button>
-	</form>
+        .flashes li {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
 
-	<!-- main section for items -->
-	<table>
-		<tr>
-			<th>ID</th>
-			<th>Name</th>
-			<th>Description</th>
-			<th>Image</th>
-			<th>Available</th>
-			<th>Info</th>
-			<th>Book</th>
-		</tr>
+        .flashes .success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
 
-		{% for item in items %}
-			<tr>
-				<th>{{item.id}}</th>
-				<th>{{item.name}}</th>
-				<th>{{item.description}}</th>
-				<th>{{item.image_path}}</th>
-				<th>{{item.available}}</th>
-				<th><Button onclick="click_info({{item.id}})">Info?</Button></th>
-				<th><Button onclick="click_book({{item.id}})" {% if item.available < 1%}disabled{%endif%}>Book?</Button></th>
-			</tr>
-		{% endfor %}
-	</table>
+        .flashes .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
 
-	<script>
+        /* Search Section */
+        .search-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
 
-function click_book(id){
-    // validatation
-    const params = new URLSearchParams( {
-        id : id,
-    });
+        .search-section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #495057;
+        }
 
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-    window.location.href = `/library/validation?${params.toString()}`
-}
+        .search-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
 
+        .search-form input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
 
-function click_info(id) {
-    const url = `/library/info?id=${encodeURIComponent(id)}`;
+        .btn {
+            padding: 10px 20px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
 
-    fetch(url,{
-        method:"GET",
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        .btn:hover {
+            background: #357abd;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-info {
+            background: #6c757d;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-info:hover {
+            background: #5a6268;
+        }
+
+        .btn-book {
+            background: #28a745;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-book:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-body p {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .modal-body strong {
+            color: #2c3e50;
+        }
+
+        .modal-close {
+            background: #6c757d;
+            width: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
             }
-            return response.json();
-        })
-        .then(data => {
-            alert(
-                `SUCESS: ${data.success}\n` +
-                `NAME: ${data.name}\n` +
-                `BOOKED ON : ${data.booked_on}\n`+
-                `HOLD : ${data.hold_state}\n` +
-                `hold days : ${data.hold_days}\n`
-            );
-        })
-        .catch(error => {
-            alert("Error: " + error.message);
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-info, .btn-book {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Library Booking System</h1>
+        <p class="subtitle">FSU, Pulchowk Campus</p>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <h2>Check Your Bookings</h2>
+            <form action="/library/user-bookings" method="post" class="search-form">
+                <input type="email" name="email" placeholder="Enter your email address" required>
+                <button type="submit" class="btn">Search Bookings</button>
+            </form>
+        </div>
+
+        <!-- Items Table -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>
+                                {% if item.available > 0 %}
+                                    <span class="status-badge status-available">Available ({{ item.available }})</span>
+                                {% else %}
+                                    <span class="status-badge status-unavailable">Unavailable</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button onclick="showInfo({{ item.id }})" class="btn btn-info">Info</button>
+                                    <button onclick="bookItem({{ item.id }})" class="btn btn-book" {% if item.available < 1 %}disabled{% endif %}>Book</button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header">Item Information</h2>
+            <div class="modal-body" id="modalBody"></div>
+            <button onclick="closeModal()" class="btn modal-close">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function bookItem(id) {
+            const params = new URLSearchParams({ id: id });
+            window.location.href = `/library/validation?${params.toString()}`;
+        }
+
+        function showInfo(id) {
+            const url = `/library/info?id=${encodeURIComponent(id)}`;
+            
+            fetch(url, { method: "GET" })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const modalBody = document.getElementById('modalBody');
+                    modalBody.innerHTML = `
+                        <p><strong>Name:</strong> ${data.name}</p>
+                        <p><strong>Status:</strong> ${data.success ? 'Available' : 'Unavailable'}</p>
+                        <p><strong>Booked On:</strong> ${data.booked_on || 'N/A'}</p>
+                        <p><strong>Hold Status:</strong> ${data.hold_state || 'N/A'}</p>
+                        <p><strong>Hold Days:</strong> ${data.hold_days || 'N/A'}</p>
+                    `;
+                    document.getElementById('infoModal').classList.add('active');
+                })
+                .catch(error => {
+                    alert("Error loading information: " + error.message);
+                });
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('infoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
         });
-}
-
-	</script>
-
-	</html>
+    </script>
+</body>
+<br>
+<p >Developed and Maintained by Automation Team, FSU Extended Commitee</p>
+</html>
