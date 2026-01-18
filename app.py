@@ -358,6 +358,14 @@ def validate():
         db.close()
         flash("Item not available")
         return redirect("/library")
+    
+    # New Feature: A student can book only one item at a time
+    bookings = get_user_bookings(db,email)
+    
+    if bookings:
+        flash("A user can book only one item at a time")
+        return redirect("/library")
+    
 
     booking = Booking(
         user_email=email,
