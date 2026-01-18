@@ -43,6 +43,7 @@ class Booking(Base):
     on_hold_state = Column(Boolean, default=True)
     on_occupied_state = Column(Boolean, default=False)
     is_expired = Column(Boolean, default=False)
+    is_history = Column(Boolean, default = False) # means is part of history, currently not booked, part of history
 
     item_id = Column(Integer, ForeignKey("items.id"))
     item = relationship("Item", back_populates="bookings")
@@ -76,9 +77,15 @@ def get_items_on_hold(db):
     ).all()
 
 def get_user_bookings(db, email: str):
-    return db.query(Booking).filter(
-        Booking.user_email == email
-    ).all()
+    return (
+        db.query(Booking)
+        .filter(
+            Booking.user_email == email,
+            Booking.is_history == False
+        )
+        .all()
+    )
+
 
 
 def get_items_on_occupy(db):
