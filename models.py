@@ -27,7 +27,7 @@ class Item(Base):
 
     hold_time = Column(Integer, default=3)  # Max-days before return must be done
     occupy_time = Column(Integer, default=15) # Max-days after booking item must be taken
-
+    catagory = Column(Integer,default = 0)
     bookings = relationship("Booking", back_populates="item")
 
 class Booking(Base):
@@ -63,7 +63,8 @@ def item_by_id(db, item_id: int):
 
 def get_all_items(db):
     return db.query(Item).all()
-
+def get_all_items_with_id(db,n):
+    return db.query(Item).filter(Item.catagory == n).all()
 def get_available_items(db):
     return db.query(Item).filter(Item.available == True).all()
 
