@@ -16,6 +16,7 @@ from db import SessionLocal
 from models import (
     Item, Booking,
     get_all_items,
+    get_all_items_with_id,
     item_by_id,
     get_user_bookings,
     get_items_on_hold,
@@ -65,9 +66,9 @@ def get_db():
 @app.route("/library")
 def home():
     db = get_db()
-    items = get_all_items(db)
+    items = get_all_items_with_id(db,1)
     db.close()
-    return render_template("index.html", items=items)
+    return render_template("index.html", items=items,name="Library Management System")
 
 @app.route("/library/user-bookings", methods=["POST"])
 def user_history():
@@ -313,12 +314,13 @@ def oauth_thing():
     
     session['id'] = item_id
 
-    redirect_uri = url_for('auth_callback',_external = True)
-    return oauth.google.authorize_redirect(redirect_uri)
+    return redirect("/library/auth/callback")
 
 @app.route('/library/auth/callback')
 def auth_callback():
-    token = oauth.google.authorize_access_token()
+    session['email'] = "aadi@aadi.aadi"
+    return redirect('/library/final_validation')
+    """ token = oauth.google.authorize_access_token()
     user = token['userinfo']
 
     # session['user'] = {
@@ -338,22 +340,23 @@ def auth_callback():
         flash("Please use the official Pulchowk Campus Mail")
         session['email'] = None
         session['id'] = None
-        return redirect('/library')
+        return redirect('/library') """
 
 
 @app.route("/library/final_validation")
 def validate():
-    ''' Validates the items and email'''
-
+    """ ''' Validates the items and email'''
+    """
     item_id = session.get("id")
     email = session.get('email')
-
+    db = get_db()
+    item = item_by_id(db, item_id)
+    """
     if not (item_id and email):
         flash("Invalid request")
         return redirect("/library")
 
-    db = get_db()
-    item = item_by_id(db, item_id)
+    
 
     if not item or not item.available:
         db.close()
@@ -366,7 +369,7 @@ def validate():
     if bookings:
         flash("A user can book only one item at a time")
         return redirect("/library")
-    
+     """
 
     booking = Booking(
         user_email=email,
@@ -388,7 +391,34 @@ def validate():
     )
 
     return redirect("/library")
+    
+@app.route("/library/sports-bank/")
+@app.route("/library/sports-bank")
+def home1():
+    db = get_db()
+    items = get_all_items_with_id(db,2)
+    db.close()
+    return render_template("index.html", items=items,name="Sports Bank")
 
+@app.route("/library/program-resources/")
+@app.route("/library/program-resources")
+def home2():
+    db = get_db()
+    items = get_all_items_with_id(db,3)
+    db.close()
+    return render_template("index.html", items=items,name="Program Resources")
+    
+
+@app.route("/library/miscellaneous/")
+@app.route("/library/miscellaneous")
+def home3():
+    db = get_db()
+    items = get_all_items_with_id(db,0)
+    db.close()
+    return render_template("index.html", items=items,name="miscellaneous")
+    
+from tables import tables_bp
+app.register_blueprint(tables_bp)
 
 # @app.route("/validation",methods=["GET","POST"])
 # def validate():
@@ -443,7 +473,7 @@ def validate():
 
 #         # commit those updated changes
 #         save_data_base(items)
-#         items = load_data_base() # TODO: remove?
+#         items = load_data_base() TODO: remove?
 
 #         flash(f"""Sucessfully done, your item is in a hold state, 
 #                 please physically go and take it in {session_item.hold_time} days or will be redacted from holdings,
@@ -454,5 +484,5 @@ def validate():
 
 # ---------------------------- 
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)

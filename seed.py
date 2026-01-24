@@ -58,12 +58,13 @@ def seed():
             image_path="",
             hold_time=2,
             occupy_time=15,
-            available=False
+            available=False,
+            catagory = 1,
         )
         booking = Booking(
                 user_email = 'legacy',
                 booked_date = datetime.now(),
-                item = item
+                item = item,
             )
         db.add(item)
         db.add(booking)
