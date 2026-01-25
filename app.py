@@ -417,8 +417,6 @@ def home3():
     db.close()
     return render_template("index.html", items=items,name="miscellaneous")
     
-from tables import tables_bp
-app.register_blueprint(tables_bp)
 
 # @app.route("/validation",methods=["GET","POST"])
 # def validate():
