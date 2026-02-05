@@ -2,6 +2,7 @@ __pycache__/
 venv/
 *.env
 *.swp
-./tables.py
-./connect.py
-
+tables.py
+connect.py
+massadd.py
+./templates/tables.html
