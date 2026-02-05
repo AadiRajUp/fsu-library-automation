@@ -140,8 +140,9 @@ def admin_dashboard():
 
     # expire holds
     for item in get_items_on_hold(db):
+
         booking = item.bookings[-1]
-        if (now - booking.booked_date).days > item.hold_time:
+        if booking.booked_date and (now - booking.booked_date).days > item.hold_time:
             booking.is_expired = True
             booking.on_hold_state = False
             item.available = True
@@ -314,13 +315,12 @@ def oauth_thing():
     
     session['id'] = item_id
 
-    return redirect("/library/auth/callback")
+    redirect_uri = url_for('auth_callback',_external = True)
+    return oauth.google.authorize_redirect(redirect_uri)
 
-@app.route('/library/auth/callback')
+@app.route('/auth/google/callback')
 def auth_callback():
-    session['email'] = "aadi@aadi.aadi"
-    return redirect('/library/final_validation')
-    """ token = oauth.google.authorize_access_token()
+    token = oauth.google.authorize_access_token()
     user = token['userinfo']
 
     # session['user'] = {
@@ -340,23 +340,22 @@ def auth_callback():
         flash("Please use the official Pulchowk Campus Mail")
         session['email'] = None
         session['id'] = None
-        return redirect('/library') """
+        return redirect('/library')
 
 
 @app.route("/library/final_validation")
 def validate():
-    """ ''' Validates the items and email'''
-    """
+    ''' Validates the items and email'''
+
     item_id = session.get("id")
     email = session.get('email')
-    db = get_db()
-    item = item_by_id(db, item_id)
-    """
+
     if not (item_id and email):
         flash("Invalid request")
         return redirect("/library")
 
-    
+    db = get_db()
+    item = item_by_id(db, item_id)
 
     if not item or not item.available:
         db.close()
@@ -364,12 +363,13 @@ def validate():
         return redirect("/library")
     
     # New Feature: A student can book only one item at a time
-    bookings = get_user_bookings(db,email)
+    if email != "077bce185.swoyam@pcampus.edu.np":
+        bookings = get_user_bookings(db,email)
     
-    if bookings:
-        flash("A user can book only one item at a time")
-        return redirect("/library")
-     """
+        if bookings:
+            flash(f"A user can book only one item at a time. You have booked {bookings[0].item.name}")
+            return redirect("/library")
+    
 
     booking = Booking(
         user_email=email,
@@ -391,6 +391,7 @@ def validate():
     )
 
     return redirect("/library")
+
     
 @app.route("/library/sports-bank/")
 @app.route("/library/sports-bank")
@@ -417,10 +418,11 @@ def home3():
     db.close()
     return render_template("index.html", items=items,name="miscellaneous")
     
-## AADI PART
-from tables import tables_bp 
-app.register_blueprint(tables_bp)
-
+try:
+    from tables import tables_bp
+    app.register_blueprint(tables_bp)
+except ModuleNotFoundError:
+    pass
 
 
 

@@ -280,7 +280,6 @@
             background: #6c757d;
             width: 100%;
         }
-
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -322,7 +321,9 @@
             {% if messages %}
                 <ul class="flashes">
                 {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
+                    <script>
+                    document.addEventListener("DOMContentLoaded",()=>{alert("{{message}}");})</script>
+                    <li class="{{ category }}" style="color: red;">{{ message }}</li>
                 {% endfor %}
                 </ul>
             {% endif %}
