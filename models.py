@@ -37,7 +37,7 @@ class Booking(Base):
 
     user_email = Column(String, nullable=False)
 
-    booked_date = Column(DateTime, default=datetime.now())
+    booked_date = Column(DateTime, default=datetime.now)
     occupied_date = Column(DateTime, nullable=True)
 
     on_hold_state = Column(Boolean, default=True)
