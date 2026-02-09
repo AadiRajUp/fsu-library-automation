@@ -318,7 +318,7 @@ def oauth_thing():
     redirect_uri = url_for('auth_callback',_external = True)
     return oauth.google.authorize_redirect(redirect_uri)
 
-@app.route('/auth/google/callback')
+@app.route('/library/auth/google/callback')
 def auth_callback():
     token = oauth.google.authorize_access_token()
     user = token['userinfo']
