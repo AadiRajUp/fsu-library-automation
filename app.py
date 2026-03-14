@@ -15,8 +15,8 @@ import os
 from db import SessionLocal
 from models import (
     Item, Booking,
-    get_all_items,
-    get_all_items_with_id,
+    get_all_items,get_items_expired,
+    get_all_items_with_id, 
     item_by_id,
     get_user_bookings,
     get_items_on_hold,
@@ -140,7 +140,6 @@ def admin_dashboard():
 
     # expire holds
     for item in get_items_on_hold(db):
-
         booking = item.bookings[-1]
         if booking.booked_date and (now - booking.booked_date).days > item.hold_time:
             booking.is_expired = True
@@ -149,6 +148,7 @@ def admin_dashboard():
 
     # expire occupies
     for item in get_items_on_occupy(db):
+        print("-- ", item.bookings[-1].user_email, item.bookings[-1].booked_date)
         booking = item.bookings[-1]
         if booking.occupied_date and (
             (now - booking.occupied_date).days > item.occupy_time
@@ -171,7 +171,6 @@ def admin_dashboard():
         ])
 
     return_items = []
-    expired_items = []
 
     for item in get_items_on_occupy(db):
         b = item.bookings[-1]
@@ -190,8 +189,25 @@ def admin_dashboard():
         ]
 
         return_items.append(row)
-        if remaining < 1:
-            expired_items.append(row)
+
+    # for expired
+    expired_items = []
+    for item in get_items_expired(db):
+        b = item.bookings[-1]
+        remaining = (
+                item.occupy_time -
+                (now - b.occupied_date).days
+                )
+
+        row = [
+                item.name,
+                item.image_path,
+                b.user_email[:9].upper(),
+                remaining,
+                item.id
+                ]
+
+        expired_items.append(row)
 
     db.close()
 

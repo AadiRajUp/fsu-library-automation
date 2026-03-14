@@ -94,3 +94,10 @@ def get_items_on_occupy(db):
         Booking.on_occupied_state == True,
         Booking.is_expired == False
     ).all()
+
+def get_items_expired(db):
+    return db.query(Item).join(Booking).filter(
+        Booking.on_occupied_state == True,
+        Booking.is_expired == True
+    ).all()
+
