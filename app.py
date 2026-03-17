@@ -434,11 +434,11 @@ def home3():
     db.close()
     return render_template("index.html", items=items,name="miscellaneous")
     
-# try:
-    # from tables import tables_bp
-    # app.register_blueprint(tables_bp)
-# except ModuleNotFoundError :
-    # pass
+try:
+    from tables import tables_bp
+    app.register_blueprint(tables_bp)
+except ModuleNotFoundError :
+    pass
 
 
 

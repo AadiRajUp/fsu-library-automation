@@ -421,6 +421,8 @@
                             <th>आइ डि</th>
                             <th>लानेको रोल नं</th>
                             <th>ओभरड्यू</th>
+                            <th>कार्य</th>
+                            <th>Remind</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -431,6 +433,11 @@
                             <td data-label="रोल नं">{{ item[2] }}</td>
                             <td data-label="ओभरड्यू">
                                 <span class="status-badge status-danger">{{ item[3] }}</span>
+                            </td>
+                            <td data-label="कार्य">
+                                <button onclick="return_ownership({{ item[4] }})" class="btn btn-return">
+                                    ← विद्यार्थी सामान पुर्याउन आए
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
